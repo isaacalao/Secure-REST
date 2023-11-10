@@ -1,0 +1,22 @@
+    <head>
+    <title>API Frontend</title>
+    <link rel="icon"  href="/static/cloud-computing.png">
+    <link rel="stylesheet" href="/static/style.css">
+    <script type="text/javascript" src="/static/func.js"></script>
+    </head>
+    <h1>Login</h1>
+    <body>
+    <form action="/priv-endpoint" method="post">
+        <b>Password:</b> <br><input class="mybutton" name="password" id="ignore-hover" placeholder="Enter password here" type="password">
+        
+        <input type="submit" class="mybutton" id="submit-button">    
+    </form>
+
+    <form action="/files/" enctype="multipart/form-data" method="post">
+        <input name="files" id="real-button" type="file" onchange="console.log(this.files)" multiple hidden>
+        <label class="mybutton" for="real-button">Choose Files</label>
+        <span id="file-chosen">No file chosen.</span>
+        
+        <input type="submit" class="mybutton" id="submit-button">    
+    </form>
+    </body>

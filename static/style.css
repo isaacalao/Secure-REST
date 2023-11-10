@@ -50,6 +50,12 @@ body {
   z-index: 0;
 }
 
+#ignore-hover {
+  color: #4285f4;
+  background-color: #FFFFFF;
+  background-image: none;
+}
+
 .mybutton:hover {
   background: #F6F9FE;
   color: #174ea6;

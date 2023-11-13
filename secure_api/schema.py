@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-class Demo(BaseModel): #inherits from PyDantic BaseModel
-    title: str
-    body: str
-    description: str
+class User(BaseModel): # inherits from PyDantic BaseModel
+    username: str
+    password: str
+    access: str | None = None

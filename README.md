@@ -1,5 +1,5 @@
-# Secure-RESTful
-A RESTful API implementation tailored to initiate secure and reliable exchange of data from a server to a client or vice versa. 
+# Secure-REST
+A REST API implementation tailored to initiate secure and reliable exchange of data from a server to a client or vice versa. 
 
 ## Getting Started
 Make sure you are in the correct directory (that means the directory where `.git` is)

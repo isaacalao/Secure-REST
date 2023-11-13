@@ -1,8 +1,15 @@
-from fastapi import ( FastAPI, Depends, File, Form, Response, HTTPException,  UploadFile, status )
+import datetime, jwt, os
+from fastapi import ( FastAPI, Depends, File, Form, Response, HTTPException,  UploadFile, Header, Request, status )
 from fastapi.security import ( APIKeyCookie, HTTPBearer, HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBearer )
 from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
-from . import schema
+from dotenv import load_dotenv
+from . import database_handler
+
+load_dotenv('.env')
+ALGORITHM = os.getenv("ALGORITHM")
+SECRET = os.getenv("SECRET")
+
 
 app = FastAPI(
     title="Secure RESTFul API",
@@ -10,86 +17,46 @@ app = FastAPI(
     #docs_url="docs-something",
 )
 app.mount("/static", StaticFiles(directory="static"), name="static")
-security = HTTPBasic()
 token_auth_scheme = HTTPBearer()
 
 
-# Keep in mind dynamic routes/endpoints should be below static ones
+@app.get("/get-all-users")
+async def get_all_users():
+    """This endpoint shows all of the registered users and their access."""
 
-@app.get("/")
-async def root():
-    # HTML Content
-    return HTMLResponse(
-        content = 
-            """
-                <head>
-                <title>API Frontend</title>
-                <link rel="icon"  href="/static/cloud-computing.png">
-                <link rel="stylesheet" href="/static/style.css">
-                <script type="text/javascript" src="/static/func.js"></script>
-                </head>
-                <h1>Login</h1>
-                <body>
+    return { "users" : await database_handler.names_and_access() }
 
-                <form action="/files/" enctype="multipart/form-data" method="post">
-                    <b>Password:</b> <br><input class="mybutton" name="password" id="ignore-hover" placeholder="Enter password here" type="password">
-                    <br><br>
-                    <input name="files" id="real-button" type="file" onchange="console.log(this.files)" multiple hidden>
-                    <label class="mybutton" for="real-button">Choose Files</label>
-                    <span id="file-chosen">No file chosen.</span>
-                    
-                    <input type="submit" class="mybutton" id="submit-button">    
-                </form>
-                </body>
-            """
-    )
+@app.get("/get-current-user")
+async def get_user():
+    """This endpoint shows the current authenticated user's information."""
 
-@app.get("/pub-endpoint")
-async def pub_endpoint_handler():
-    """An access/authentication token is not required to access this endpoint."""
+    return ""
 
-    return {
-            "status": status.HTTP_200_OK, 
-            "message": "Public endpoint."
-    }
-
-@app.post("/files")
+@app.post("/create-user")
 #async def priv_endpoint_handler(token: str = Depends(token_auth_scheme)):
-async def priv_endpoint_handler(files: list[UploadFile] = File(description="Multiple files may be uploaded!"), password: str = Form()):
-    """An access/authentication token is required to access this endpoint."""
-    file_name_and_size = [(file.filename, file.size) for file in files]
-    print(password)
+async def create_user(username: str, password: str, requests: Request):
+    """This endpoint is used to create a user."""
+    Ok, Err = await database_handler.insert_user(username, password)
+    file_name_and_size = None
 
-    if password == "admin":
-        Redire
-        return JSONResponse(ontent=
-            {
-                "status": status.HTTP_200_OK,
-                "message": "Access granted to private endpoint",
+    if Ok:
+        print(requests.headers)
+        print(requests.headers['user-agent'])
+        token = jwt.encode(payload=database_handler.database['users'][username], key=SECRET, algorithm=ALGORITHM)
+        return JSONResponse(
+            status_code=status.HTTP_201_CREATED,
+            content={
+                "message": f"User {username} created!",
                 "file_sizes": [ file_name_and_size ],
-                "token": password
-            }, headers={"Authorization": f'Bearer {password}'}
+                "token": token
+
+            }
         )
     else:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid password!")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"{Err}")
 
-@app.get("/do-files")
-async def handle(creds: str = Depends(token_auth_scheme)):
-    return {
-        "success", "tes"
-    }
 
 """
-@app.get("/priv-endpoint")
-async def priv_endpoint_handler(token: str = Depends(token_auth_scheme)):
-# An access/authentication token is required to access this endpoint.
-    print(type(token))
-
-    return { 
-            "status": "",
-            "message": "Private endpoint."
-        }
-
 @app.post("/demo")
 async def demo_handler(demo: schema.Demo):
     return {"message": { "Demo returns": [demo.title, demo.body] }}

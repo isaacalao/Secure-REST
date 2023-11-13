@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from . import database_handler, schema
 
 load_dotenv('.env')
-ALGORITHM = os.getenv("ALGORITHM")
+ALGORITHMS = os.getenv("ALGORITHMS")
 SECRET = os.getenv("SECRET")
 BLOWFISH_PREFIX = b'2a'
 
@@ -20,7 +20,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 token_auth_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 async def register_dep(username: str, password: str) -> tuple:
-    if (re.match("[a-zA-Z]{5,20}", username)) and (re.match("^[a-zA-Z0-9]{5,30}$", password)):
+    if (re.match("^[a-zA-Z]{5,20}$", username)) and (re.match("^[a-zA-Z0-9]{5,30}$", password)):
         hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8') # Hash password with salt and convert to string
         Ok, Err = await database_handler.insert_user(username, hashed_password)
         if Ok:
@@ -30,7 +30,7 @@ async def register_dep(username: str, password: str) -> tuple:
 
     else:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
+            status_code=status.HTTP_401_UNAUTHORIZED,
             detail={
                     "username": "Must be alphabetic and 5-20 characters long!",
                     "password": "Must be alphanumeric and 5-30 characters long!"
@@ -63,7 +63,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), request: Reque
             token = jwt.encode(
                 payload=payload, 
                 key=SECRET, 
-                algorithm=ALGORITHM
+                algorithm=ALGORITHMS
             )
         else:
             raise HTTPException(

@@ -1,15 +1,14 @@
-import json
+import json, bcrypt
 
 database = {
   "users": {
     "admin" : {
         "username": "admin",
-        "password": "admin",
+        "hashed_password": bcrypt.hashpw(b'sudoadmin123', bcrypt.gensalt()).decode('utf-8'),
         "access": "All"
     }
   }
 }
-
 
 """
 # Get contents from JSON database
@@ -22,7 +21,7 @@ if "users" not in database:
     database["users"] = {}
 
 # Insert user into JSON database
-async def insert_user(username, password):
+async def insert_user(username, hashed_password):
 
     if username in database["users"]:
         return (False, "User already exists!")
@@ -31,7 +30,7 @@ async def insert_user(username, password):
         { 
             f"{username}" : {
                 "username": f"{username}", 
-                "password": f"{password}",
+                "hashed_password": f"{hashed_password}",
                 "access": None
             }
         }
@@ -39,7 +38,7 @@ async def insert_user(username, password):
     return (True, None)
 
 async def names_and_access():
-    return { ( user, database['users'][user]["access"] ) for user in database["users"] }
+    return { ( user, database['users'][user]['access'] ) for user in database["users"] }
 
 """
 # Write any updates if there are any to the JSON database

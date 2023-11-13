@@ -23,7 +23,7 @@ async def root(header: str | None =  Header(default=None)):
             """
                 <head>
                 <title>API Frontend</title>
-                <link rel="icon"  href="/static/cloud-computing.png">
+                <link rel="icon"  href="/static/REST.png">
                 <link rel="stylesheet" href="/static/style.css">
                 <script type="text/javascript" src="/static/func.js"></script>
                 </head>

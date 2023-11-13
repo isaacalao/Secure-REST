@@ -15,8 +15,12 @@ Make sure you are in the correct directory (that means the directory where `.git
     ```bash
     pip3 install -r requirements.txt
     ```
-
-3. Run the webserver
+3. Generate a 21-digit secret and store it in `.env`
+    ```bash
+    echo -ne "ALGORITHMS = HS256\nSECRET = $(python3 -c "import secrets; print(secrets.token_hex(21))")" > .env
+    ```
+    * Running this command again will override the contents of `.env`
+4. Run the webserver
     ```bash
     # Reloads after most recent change
     uvicorn secure_api.main:app --reload
@@ -27,7 +31,7 @@ Make sure you are in the correct directory (that means the directory where `.git
     # Make available on LAN (0.0.0.0 wildcard addr)
     uvicorn secure_api.main:app --host 0.0.0.0 --port 8000 --reload
     ```
-4. Try interacting with the server using `curl`
+5. Try interacting with the server using `curl`
     ```bash
     # Retrieve private IP addr on OSX
     ipconfig getifaddr en0

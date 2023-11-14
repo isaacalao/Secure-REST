@@ -4,7 +4,7 @@ from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.staticfiles import StaticFiles
 from dotenv import load_dotenv
-from . import database_handler, schema
+from . import database_handler 
 
 load_dotenv('.env')
 ALGORITHMS = os.getenv("ALGORITHMS")
@@ -62,7 +62,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), request: Reque
 
             token = jwt.encode(
                 payload=payload, 
-                key=SECRET, 
+                key=SECRET,
                 algorithm=ALGORITHMS
             )
         else:
@@ -86,30 +86,41 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), request: Reque
 @app.get("/get-current-user")
 async def get_user(token: str = Depends(token_auth_scheme), request: Request = None):
     """This endpoint shows the current authenticated user's information."""
-    if not token == None:
-        return JSONResponse(
-                status_code=status.HTTP_200_OK,
-                content={ 
-                    "user": jwt.decode(token, key=SECRET, algorithms=ALGORITHM),
-                    "user-agent": request.headers['user-agent']
-                }
-        )
-    else:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Access denied."
-        )
+    try:
+        if not token == None:
+            return JSONResponse(
+                    status_code=status.HTTP_200_OK,
+                    content={ 
+                        "user": jwt.decode(token, key=SECRET, algorithms=ALGORITHMS),
+                        "user-agent": request.headers['user-agent']
+                    }
+            )
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Access denied."
+            )
+    except jwt.exceptions.DecodeError:  
+            raise HTTPException(
+                status_code=status.HTTP_417_EXPECTATION_FAILED,
+               detail="Expected JWT."
+            )
     
 @app.get("/get-all-users")
 async def get_all_users(token: str = Depends(token_auth_scheme)):
     """This endpoint shows all of the registered users and their access level."""
-
-    if jwt.decode(token, key=SECRET, algorithms=ALGORITHM).get("access") == "All":
-        return {
-                "users" : await database_handler.names_and_access() 
-        }
-    else:
+    try:
+        if jwt.decode(token, key=SECRET, algorithms=ALGORITHMS).get("access") == "All":
+            return {
+                    "users" : await database_handler.names_and_access() 
+            }
+        else:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Access denied."
+            )
+    except jwt.exceptions.DecodeError:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Access denied."
-        )
+            status_code=status.HTTP_417_EXPECTATION_FAILED,
+            detail="Expected JWT."
+    )

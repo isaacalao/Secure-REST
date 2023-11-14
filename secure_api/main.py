@@ -102,7 +102,7 @@ async def get_user(token: str = Depends(token_auth_scheme), request: Request = N
             )
     except jwt.exceptions.DecodeError:  
             raise HTTPException(
-                status_code=status.HTTP_417_EXPECTATION_FAILED,
+                status_code=status.HTTP_400_BAD_REQUEST,
                detail="Expected JWT."
             )
     
@@ -121,6 +121,6 @@ async def get_all_users(token: str = Depends(token_auth_scheme)):
             )
     except jwt.exceptions.DecodeError:
         raise HTTPException(
-            status_code=status.HTTP_417_EXPECTATION_FAILED,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail="Expected JWT."
     )

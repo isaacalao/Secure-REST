@@ -26,11 +26,11 @@ async def register_dep(username: str, password: str) -> tuple:
         if Ok:
             return (username, hashed_password)
         else:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=Err)
+            raise HTTPException( status_code=status.HTTP_400_BAD_REQUEST,detail=Err)
 
     else:
         raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_400_BAD_REQUEST,
             detail={
                     "username": "Must be alphabetic and 5-20 characters long!",
                     "password": "Must be alphanumeric and 5-30 characters long!"
